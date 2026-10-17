@@ -1,0 +1,835 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>⚡ CYBER SAWAB SYSTEM v2.1</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Vazirmatn Font CDN -->
+    <link href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css" rel="stylesheet" type="text/css" />
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        'bg-dark': '#05070A',
+                        'card-bg': '#0D1117',
+                        'card-border': '#1F293D',
+                        'cyan-neon': '#00F0FF',
+                        'magenta-neon': '#FF007F',
+                        'purple-neon': '#8A2BE2',
+                        'gold-neon': '#FFD700',
+                        'green-neon': '#00FF66',
+                        'text-main': '#F0F6FC',
+                        'text-muted': '#8B949E',
+                    },
+                    fontFamily: {
+                        vazir: ['Vazirmatn', 'sans-serif'],
+                        mono: ['Consolas', 'Courier New', 'monospace']
+                    },
+                    boxShadow: {
+                        'neon-cyan': '0 0 15px rgba(0, 240, 255, 0.4)',
+                        'neon-magenta': '0 0 15px rgba(255, 0, 127, 0.4)',
+                        'neon-purple': '0 0 15px rgba(138, 43, 226, 0.4)',
+                        'neon-gold': '0 0 15px rgba(255, 215, 0, 0.4)',
+                        'neon-green': '0 0 15px rgba(0, 255, 102, 0.4)',
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            background-color: #05070A;
+            color: #F0F6FC;
+            font-family: 'Vazirmatn', sans-serif;
+            background-image: 
+                radial-gradient(circle at 50% 0%, rgba(0, 240, 255, 0.05), transparent 70%),
+                radial-gradient(circle at 0% 100%, rgba(255, 0, 127, 0.03), transparent 50%);
+            min-height: 100vh;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #05070A;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #1F293D;
+            border-radius: 4px;
+            border: 1px solid #00F0FF;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #00F0FF;
+        }
+
+        /* Cyberpunk scanline effect subtle overlay */
+        .scanline {
+            background: linear-gradient(
+                to bottom,
+                rgba(255,255,255,0),
+                rgba(255,255,255,0) 50%,
+                rgba(0, 0, 0, 0.3) 50%,
+                rgba(0, 0, 0, 0.3)
+            );
+            background-size: 100% 4px;
+        }
+
+        @keyframes pulse-glow {
+            0%, 100% { opacity: 0.8; filter: drop-shadow(0 0 8px rgba(255,215,0,0.6)); }
+            50% { opacity: 1; filter: drop-shadow(0 0 18px rgba(255,215,0,0.9)); }
+        }
+        .gold-pulse {
+            animation: pulse-glow 2s infinite;
+        }
+
+        .modal-blur {
+            backdrop-filter: blur(8px);
+        }
+    </style>
+</head>
+<body class="p-3 md:p-6 flex flex-col justify-between min-h-screen select-none">
+
+    <!-- TOP HUD HEADER -->
+    <header class="max-w-6xl w-full mx-auto mb-6">
+        <div class="bg-card-bg border border-cyan-neon rounded-2xl p-4 md:p-5 shadow-neon-cyan relative overflow-hidden backdrop-blur-md">
+            <div class="absolute inset-0 scanline opacity-20 pointer-events-none"></div>
+
+            <div class="flex flex-col md:flex-row justify-between items-center gap-4 relative z-10">
+                <!-- Title & System Identifier -->
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-cyan-neon/10 border border-cyan-neon flex items-center justify-center text-cyan-neon text-xl shadow-inner">
+                        <i class="fa-solid fa-microchip"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-xl md:text-2xl font-bold text-cyan-neon tracking-wide flex items-center gap-2">
+                            <span>❖ سیستم هوشمند محاسبه ثواب‌ها</span>
+                        </h1>
+                        <p class="text-xs text-text-muted font-mono mt-0.5">CYBER SAWAB SYSTEM v2.1 // OFFLINE READY</p>
+                    </div>
+                </div>
+
+                <!-- Score Counter Display & Actions -->
+                <div class="flex items-center gap-4 bg-bg-dark/80 px-5 py-2.5 rounded-xl border border-card-border shadow-inner">
+                    <div class="flex items-center gap-2">
+                        <span class="text-gold-neon text-2xl gold-pulse"><i class="fa-solid fa-bolt"></i></span>
+                        <div class="text-right">
+                            <span class="text-xs text-text-muted block">مجموع ثواب‌ها:</span>
+                            <span id="score-counter" class="text-2xl md:text-3xl font-bold font-mono text-gold-neon tracking-wider">0</span>
+                        </div>
+                    </div>
+                    
+                    <div class="h-8 w-px bg-card-border my-auto mx-1"></div>
+
+                    <!-- Reset & Audio Toggle Buttons -->
+                    <div class="flex gap-2">
+                        <button onclick="toggleAudio()" id="audio-btn" class="p-2 rounded-lg bg-card-bg border border-card-border hover:border-cyan-neon text-text-muted hover:text-cyan-neon transition-all" title="صدای کلیک">
+                            <i id="audio-icon" class="fa-solid fa-volume-high text-sm"></i>
+                        </button>
+                        <button onclick="confirmReset()" class="p-2 rounded-lg bg-card-bg border border-card-border hover:border-magenta-neon text-text-muted hover:text-magenta-neon transition-all" title="بازنشانی امتیازها">
+                            <i class="fa-solid fa-rotate-right text-sm"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- MAIN APP CONTAINER -->
+    <main class="max-w-6xl w-full mx-auto flex-1 flex flex-col">
+        <!-- Navigation Banner / Back Button -->
+        <div id="nav-banner" class="hidden mb-4 flex justify-between items-center bg-card-bg border border-card-border p-3 rounded-xl">
+            <h2 id="view-title" class="text-lg font-bold text-cyan-neon flex items-center gap-2">
+                <!-- Dynamic View Title -->
+            </h2>
+            <button onclick="showMainMenu()" class="px-4 py-2 bg-card-bg border border-cyan-neon text-cyan-neon hover:bg-cyan-neon hover:text-bg-dark font-bold text-sm rounded-lg transition-all flex items-center gap-2 shadow-neon-cyan">
+                <i class="fa-solid fa-arrow-right"></i>
+                <span>بازگشت به منوی اصلی</span>
+            </button>
+        </div>
+
+        <!-- VIEW 1: MAIN MENU (CATEGORIES) -->
+        <div id="view-main-menu" class="flex-1 flex flex-col justify-center">
+            <p class="text-center text-text-muted mb-6 font-medium text-sm md:text-base">◄ بخش مورد نظر را برای ثبت و محاسبه ثواب انتخاب کنید ►</p>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+                <!-- Quran Card -->
+                <div onclick="openQuran()" class="group bg-card-bg border-2 border-card-border hover:border-cyan-neon p-6 rounded-2xl cursor-pointer transition-all duration-300 hover:shadow-neon-cyan flex flex-col justify-between h-48 relative overflow-hidden">
+                    <div class="absolute -left-4 -bottom-4 opacity-10 group-hover:opacity-25 transition-opacity text-cyan-neon text-7xl">
+                        <i class="fa-solid fa-book-quran"></i>
+                    </div>
+                    <div>
+                        <div class="flex justify-between items-start mb-2">
+                            <h3 class="text-xl font-bold text-text-main group-hover:text-cyan-neon transition-colors">📖 قرائت قرآن</h3>
+                            <span class="text-xs px-2 py-1 rounded bg-cyan-neon/10 text-cyan-neon border border-cyan-neon/30">۱۱۴ سوره</span>
+                        </div>
+                        <p class="text-sm text-text-muted">مدیریت و ثبت آیات قرائت شده همراه با ثواب کامل</p>
+                    </div>
+                    <button class="w-full py-2 bg-transparent border border-cyan-neon text-cyan-neon group-hover:bg-cyan-neon group-hover:text-bg-dark font-bold text-sm rounded-xl transition-all">
+                        ورود به بخش
+                    </button>
+                </div>
+
+                <!-- Dhikr Card -->
+                <div onclick="openDhikr()" class="group bg-card-bg border-2 border-card-border hover:border-magenta-neon p-6 rounded-2xl cursor-pointer transition-all duration-300 hover:shadow-neon-magenta flex flex-col justify-between h-48 relative overflow-hidden">
+                    <div class="absolute -left-4 -bottom-4 opacity-10 group-hover:opacity-25 transition-opacity text-magenta-neon text-7xl">
+                        <i class="fa-solid fa-hands-praying"></i>
+                    </div>
+                    <div>
+                        <div class="flex justify-between items-start mb-2">
+                            <h3 class="text-xl font-bold text-text-main group-hover:text-magenta-neon transition-colors">📿 ذکر و تسبیحات</h3>
+                            <span class="text-xs px-2 py-1 rounded bg-magenta-neon/10 text-magenta-neon border border-magenta-neon/30">تسبیح هوشمند</span>
+                        </div>
+                        <p class="text-sm text-text-muted">ثبت ادعیه، صلوات و ذکرشمار لمسی و خودکار</p>
+                    </div>
+                    <button class="w-full py-2 bg-transparent border border-magenta-neon text-magenta-neon group-hover:bg-magenta-neon group-hover:text-bg-dark font-bold text-sm rounded-xl transition-all">
+                        ورود به بخش
+                    </button>
+                </div>
+
+                <!-- Namaz Card -->
+                <div onclick="openNamaz()" class="group bg-card-bg border-2 border-card-border hover:border-purple-neon p-6 rounded-2xl cursor-pointer transition-all duration-300 hover:shadow-neon-purple flex flex-col justify-between h-48 relative overflow-hidden">
+                    <div class="absolute -left-4 -bottom-4 opacity-10 group-hover:opacity-25 transition-opacity text-purple-neon text-7xl">
+                        <i class="fa-solid fa-mosque"></i>
+                    </div>
+                    <div>
+                        <div class="flex justify-between items-start mb-2">
+                            <h3 class="text-xl font-bold text-text-main group-hover:text-purple-neon transition-colors">🕌 اقامه نماز</h3>
+                            <span class="text-xs px-2 py-1 rounded bg-purple-neon/10 text-purple-neon border border-purple-neon/30">واجب و نافله</span>
+                        </div>
+                        <p class="text-sm text-text-muted">ثبت نمازهای یومیه، نماز شب و عبادات مستحبی</p>
+                    </div>
+                    <button class="w-full py-2 bg-transparent border border-purple-neon text-purple-neon group-hover:bg-purple-neon group-hover:text-bg-dark font-bold text-sm rounded-xl transition-all">
+                        ورود به بخش
+                    </button>
+                </div>
+
+                <!-- Khair / Charity Card -->
+                <div onclick="openKhair()" class="group bg-card-bg border-2 border-card-border hover:border-gold-neon p-6 rounded-2xl cursor-pointer transition-all duration-300 hover:shadow-neon-gold flex flex-col justify-between h-48 relative overflow-hidden">
+                    <div class="absolute -left-4 -bottom-4 opacity-10 group-hover:opacity-25 transition-opacity text-gold-neon text-7xl">
+                        <i class="fa-solid fa-hand-holding-heart"></i>
+                    </div>
+                    <div>
+                        <div class="flex justify-between items-start mb-2">
+                            <h3 class="text-xl font-bold text-text-main group-hover:text-gold-neon transition-colors">🤝 کار خیر و انفاق</h3>
+                            <span class="text-xs px-2 py-1 rounded bg-gold-neon/10 text-gold-neon border border-gold-neon/30">مالی و معنوی</span>
+                        </div>
+                        <p class="text-sm text-text-muted">محاسبه کمک‌های مالی، انفاق و گره‌گشایی از مردم</p>
+                    </div>
+                    <button class="w-full py-2 bg-transparent border border-gold-neon text-gold-neon group-hover:bg-gold-neon group-hover:text-bg-dark font-bold text-sm rounded-xl transition-all">
+                        ورود به بخش
+                    </button>
+                </div>
+
+                <!-- History Log Card -->
+                <div onclick="openHistory()" class="group bg-card-bg border-2 border-card-border hover:border-green-neon p-6 rounded-2xl cursor-pointer transition-all duration-300 hover:shadow-neon-green flex flex-col justify-between h-48 relative overflow-hidden col-span-1 md:col-span-2 lg:col-span-2">
+                    <div class="absolute -left-4 -bottom-4 opacity-10 group-hover:opacity-25 transition-opacity text-green-neon text-7xl">
+                        <i class="fa-solid fa-clock-rotate-left"></i>
+                    </div>
+                    <div>
+                        <div class="flex justify-between items-start mb-2">
+                            <h3 class="text-xl font-bold text-text-main group-hover:text-green-neon transition-colors">📜 تاریخچه و گزارش ثواب‌ها</h3>
+                            <span class="text-xs px-2 py-1 rounded bg-green-neon/10 text-green-neon border border-green-neon/30">سیستم بایگانی</span>
+                        </div>
+                        <p class="text-sm text-text-muted">مشاهده لیست تمامی اعمال ثبت‌شده همراه با زمان دقیق، جزییات و امکان حذف یا گرفتن خروجی</p>
+                    </div>
+                    <button class="w-full py-2 bg-transparent border border-green-neon text-green-neon group-hover:bg-green-neon group-hover:text-bg-dark font-bold text-sm rounded-xl transition-all">
+                        مشاهده تاریخچه و لاگ‌ها
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- VIEW 2: QURAN SECTION -->
+        <div id="view-quran" class="hidden flex-1 flex flex-col gap-4">
+            <!-- Quick Ayat al-Kursi Banner -->
+            <button onclick="recordQuickAyatAlKursi()" class="w-full p-4 bg-card-bg border-2 border-green-neon hover:bg-green-neon/10 text-green-neon rounded-2xl flex items-center justify-between transition-all shadow-neon-green group">
+                <div class="flex items-center gap-3">
+                    <span class="text-2xl"><i class="fa-solid fa-star-and-crescent"></i></span>
+                    <div class="text-right">
+                        <div class="font-bold text-base md:text-lg">✨ ثبت سریع قرائت آیت الکرسی</div>
+                        <div class="text-xs text-text-muted">۳ آیه مبارکه = ۳ ثواب به حساب شما افزوده می‌شود</div>
+                    </div>
+                </div>
+                <span class="px-3 py-1.5 bg-green-neon text-bg-dark font-bold text-xs rounded-xl group-hover:scale-105 transition-transform">ثبت فوری (+۳)</span>
+            </button>
+
+            <!-- Search Bar -->
+            <div class="relative">
+                <input type="text" id="quran-search" oninput="filterSurahs()" placeholder="🔍 جستجوی نام سوره..." class="w-full bg-card-bg border border-card-border focus:border-cyan-neon text-text-main px-4 py-3 rounded-xl outline-none transition-colors text-sm">
+            </div>
+
+            <!-- Surahs Scrollable Grid -->
+            <div id="surah-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 max-h-[500px] overflow-y-auto p-1">
+                <!-- Dynamically populated via JS -->
+            </div>
+        </div>
+
+        <!-- VIEW 3: DHIKR SECTION -->
+        <div id="view-dhikr" class="hidden flex-1 flex flex-col lg:flex-row gap-6 items-stretch">
+            <!-- Interactive Counter Wheel / Tap Card -->
+            <div class="flex-1 bg-card-bg border border-magenta-neon rounded-2xl p-6 flex flex-col items-center justify-between shadow-neon-magenta">
+                <div class="text-center w-full">
+                    <span class="text-xs text-text-muted font-mono block mb-1">DIGITAL TASBEEH COUNTER</span>
+                    <h3 id="current-dhikr-label" class="text-xl font-bold text-magenta-neon">صلوات بر محمد و آل محمد</h3>
+                </div>
+
+                <!-- Digital Counter Display -->
+                <div class="my-6 text-center">
+                    <div id="dhikr-counter-val" class="text-6xl font-bold font-mono text-text-main tracking-widest my-2">0</div>
+                    <div class="text-xs text-text-muted">تعداد کلید زده شده در این بخش</div>
+                </div>
+
+                <!-- Interactive Tap Button -->
+                <button onclick="incrementDhikrCounter()" class="w-40 h-40 rounded-full border-4 border-magenta-neon bg-magenta-neon/10 hover:bg-magenta-neon/20 active:scale-95 transition-all flex flex-col items-center justify-center gap-2 text-magenta-neon shadow-neon-magenta">
+                    <i class="fa-solid fa-fingerprint text-4xl"></i>
+                    <span class="font-bold text-sm">لمس کنید</span>
+                </button>
+
+                <div class="flex gap-3 w-full mt-6">
+                    <button onclick="submitCurrentCounter()" class="flex-1 py-3 bg-magenta-neon text-text-main font-bold text-sm rounded-xl hover:opacity-90 transition-all">
+                        ثبت ثواب این ذکر
+                    </button>
+                    <button onclick="resetDhikrCounter()" class="px-4 py-3 bg-bg-dark border border-card-border text-text-muted hover:text-text-main rounded-xl transition-all">
+                        صفر کردن
+                    </button>
+                </div>
+            </div>
+
+            <!-- Preset & Custom Dhikr Form -->
+            <div class="flex-1 bg-card-bg border border-card-border rounded-2xl p-6 flex flex-col justify-between">
+                <div>
+                    <h4 class="text-md font-bold text-cyan-neon mb-4 flex items-center gap-2">
+                        <i class="fa-solid fa-list-check"></i>
+                        <span>انتخاب ذکرهای پیش‌فرض</span>
+                    </h4>
+                    <div class="grid grid-cols-1 gap-2 mb-6">
+                        <button onclick="setPresetDhikr('صلوات بر محمد و آل محمد')" class="p-3 bg-bg-dark border border-card-border hover:border-cyan-neon rounded-xl text-right text-sm text-text-main transition-all flex justify-between items-center">
+                            <span>📿 صلوات بر محمد و آل محمد</span>
+                            <i class="fa-solid fa-chevron-left text-xs text-text-muted"></i>
+                        </button>
+                        <button onclick="setPresetDhikr('سبحان الله')" class="p-3 bg-bg-dark border border-card-border hover:border-cyan-neon rounded-xl text-right text-sm text-text-main transition-all flex justify-between items-center">
+                            <span>✨ سبحان الله</span>
+                            <i class="fa-solid fa-chevron-left text-xs text-text-muted"></i>
+                        </button>
+                        <button onclick="setPresetDhikr('الحمد لله')" class="p-3 bg-bg-dark border border-card-border hover:border-cyan-neon rounded-xl text-right text-sm text-text-main transition-all flex justify-between items-center">
+                            <span>🤲 الحمد لله</span>
+                            <i class="fa-solid fa-chevron-left text-xs text-text-muted"></i>
+                        </button>
+                        <button onclick="setPresetDhikr('الله اکبر')" class="p-3 bg-bg-dark border border-card-border hover:border-cyan-neon rounded-xl text-right text-sm text-text-main transition-all flex justify-between items-center">
+                            <span>☝️ الله اکبر</span>
+                            <i class="fa-solid fa-chevron-left text-xs text-text-muted"></i>
+                        </button>
+                        <button onclick="setPresetDhikr('استغفر الله ربی و اتوب الیه')" class="p-3 bg-bg-dark border border-card-border hover:border-cyan-neon rounded-xl text-right text-sm text-text-main transition-all flex justify-between items-center">
+                            <span>🕊️ استغفر الله ربی و اتوب الیه</span>
+                            <i class="fa-solid fa-chevron-left text-xs text-text-muted"></i>
+                        </button>
+                    </div>
+
+                    <!-- Custom Form Inputs -->
+                    <h4 class="text-md font-bold text-magenta-neon mb-3 flex items-center gap-2">
+                        <i class="fa-solid fa-pen-to-square"></i>
+                        <span>ثبت دستی و مستقیم ذکر</span>
+                    </h4>
+                    <div class="space-y-3">
+                        <input type="text" id="manual-dhikr-title" placeholder="نام ذکر..." class="w-full bg-bg-dark border border-card-border focus:border-magenta-neon text-text-main px-4 py-2.5 rounded-xl outline-none text-sm">
+                        <input type="number" id="manual-dhikr-count" placeholder="تعداد تکرار..." class="w-full bg-bg-dark border border-card-border focus:border-magenta-neon text-text-main px-4 py-2.5 rounded-xl outline-none text-sm">
+                        <button onclick="submitManualDhikr()" class="w-full py-3 bg-magenta-neon text-text-main font-bold text-sm rounded-xl hover:opacity-90 transition-all shadow-neon-magenta">
+                            ثبت مستقیم در سیستم
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- VIEW 4: NAMAZ SECTION -->
+        <div id="view-namaz" class="hidden flex-1 flex flex-col items-center justify-center">
+            <h3 class="text-lg font-bold text-purple-neon mb-6">❖ ثبت و اقامه نمازهای یومیه و مستحبی</h3>
+            <div class="w-full max-w-2xl grid grid-cols-1 md:grid-cols-2 gap-4">
+                <button onclick="recordNamaz('نماز صبح', 2)" class="p-4 bg-card-bg border border-purple-neon hover:bg-purple-neon/20 rounded-xl flex justify-between items-center transition-all text-purple-neon shadow-neon-purple">
+                    <span class="font-bold">🌅 نماز صبح (۲ رکعت)</span>
+                    <span class="px-3 py-1 bg-purple-neon/10 rounded-lg text-xs border border-purple-neon/30">+۲ ثواب</span>
+                </button>
+                <button onclick="recordNamaz('نماز ظهر', 4)" class="p-4 bg-card-bg border border-purple-neon hover:bg-purple-neon/20 rounded-xl flex justify-between items-center transition-all text-purple-neon shadow-neon-purple">
+                    <span class="font-bold">☀️ نماز ظهر (۴ رکعت)</span>
+                    <span class="px-3 py-1 bg-purple-neon/10 rounded-lg text-xs border border-purple-neon/30">+۴ ثواب</span>
+                </button>
+                <button onclick="recordNamaz('نماز عصر', 4)" class="p-4 bg-card-bg border border-purple-neon hover:bg-purple-neon/20 rounded-xl flex justify-between items-center transition-all text-purple-neon shadow-neon-purple">
+                    <span class="font-bold">🌤️ نماز عصر (۴ رکعت)</span>
+                    <span class="px-3 py-1 bg-purple-neon/10 rounded-lg text-xs border border-purple-neon/30">+۴ ثواب</span>
+                </button>
+                <button onclick="recordNamaz('نماز مغرب', 3)" class="p-4 bg-card-bg border border-purple-neon hover:bg-purple-neon/20 rounded-xl flex justify-between items-center transition-all text-purple-neon shadow-neon-purple">
+                    <span class="font-bold">🌆 نماز مغرب (۳ رکعت)</span>
+                    <span class="px-3 py-1 bg-purple-neon/10 rounded-lg text-xs border border-purple-neon/30">+۳ ثواب</span>
+                </button>
+                <button onclick="recordNamaz('نماز عشاء', 4)" class="p-4 bg-card-bg border border-purple-neon hover:bg-purple-neon/20 rounded-xl flex justify-between items-center transition-all text-purple-neon shadow-neon-purple">
+                    <span class="font-bold">🌙 نماز عشاء (۴ رکعت)</span>
+                    <span class="px-3 py-1 bg-purple-neon/10 rounded-lg text-xs border border-purple-neon/30">+۴ ثواب</span>
+                </button>
+                <button onclick="recordNamaz('نماز شب و نوافل', 11)" class="p-4 bg-card-bg border border-purple-neon hover:bg-purple-neon/20 rounded-xl flex justify-between items-center transition-all text-purple-neon shadow-neon-purple">
+                    <span class="font-bold">✨ نماز شب / نافله (۱۱ رکعت)</span>
+                    <span class="px-3 py-1 bg-purple-neon/10 rounded-lg text-xs border border-purple-neon/30">+۱۱ ثواب</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- VIEW 5: KHAIR / CHARITY SECTION -->
+        <div id="view-khair" class="hidden flex-1 flex flex-col items-center justify-center">
+            <h3 class="text-lg font-bold text-gold-neon mb-6">❖ ثبت انفاق، کمک مالی و خدمات خیرخواهانه</h3>
+            <div class="w-full max-w-2xl grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Financial Charity Button -->
+                <div class="bg-card-bg border border-gold-neon rounded-2xl p-6 flex flex-col justify-between shadow-neon-gold text-right">
+                    <div>
+                        <div class="text-3xl text-gold-neon mb-3"><i class="fa-solid fa-credit-card"></i></div>
+                        <h4 class="text-lg font-bold text-text-main mb-2">💳 کار خیر مالی</h4>
+                        <p class="text-xs text-text-muted mb-4">محاسبه بر اساس فرمول (هر ۱۰,۰۰۰ تومان = ۱ ثواب)</p>
+                    </div>
+                    <button onclick="openMaliModal()" class="w-full py-3 bg-gold-neon text-bg-dark font-bold text-sm rounded-xl hover:opacity-90 transition-all">
+                        ورود و ثبت مبلغ
+                    </button>
+                </div>
+
+                <!-- Non-Financial Charity Button -->
+                <div class="bg-card-bg border border-cyan-neon rounded-2xl p-6 flex flex-col justify-between shadow-neon-cyan text-right">
+                    <div>
+                        <div class="text-3xl text-cyan-neon mb-3"><i class="fa-solid fa-hand-holding-heart"></i></div>
+                        <h4 class="text-lg font-bold text-text-main mb-2">🌟 کار خیر غیرمالی</h4>
+                        <p class="text-xs text-text-muted mb-4">ثبت گره‌گشایی، نیکی، خدمت به والدین و مردم (+۱ ثواب)</p>
+                    </div>
+                    <button onclick="openGhairMaliModal()" class="w-full py-3 bg-cyan-neon text-bg-dark font-bold text-sm rounded-xl hover:opacity-90 transition-all">
+                        ثبت شرح خدمت
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- VIEW 6: HISTORY LOGS SECTION -->
+        <div id="view-history" class="hidden flex-1 flex flex-col gap-4">
+            <div class="flex flex-col sm:flex-row justify-between items-center gap-3 bg-card-bg p-4 rounded-xl border border-card-border">
+                <div class="text-sm font-bold text-green-neon flex items-center gap-2">
+                    <i class="fa-solid fa-list-ol"></i>
+                    <span>لیست ثبت تاریخچه اعمال و لاگ‌های دیتابیس</span>
+                </div>
+                <div class="flex gap-2">
+                    <button onclick="exportLogs()" class="px-3 py-1.5 bg-green-neon/10 border border-green-neon text-green-neon text-xs rounded-lg hover:bg-green-neon hover:text-bg-dark font-bold transition-all">
+                        <i class="fa-solid fa-download ml-1"></i> خروجی متنی (.txt)
+                    </button>
+                    <button onclick="clearLogs()" class="px-3 py-1.5 bg-magenta-neon/10 border border-magenta-neon text-magenta-neon text-xs rounded-lg hover:bg-magenta-neon hover:text-text-main font-bold transition-all">
+                        <i class="fa-solid fa-trash ml-1"></i> پاکسازی تاریخچه
+                    </button>
+                </div>
+            </div>
+
+            <!-- Scrollable Log Table -->
+            <div class="flex-1 bg-card-bg border border-card-border rounded-xl p-4 overflow-y-auto max-h-[500px]">
+                <div id="log-list" class="space-y-2">
+                    <!-- Logs injected dynamically -->
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- FOOTER STATUS BAR -->
+    <footer class="max-w-6xl w-full mx-auto mt-6 text-center text-xs text-text-muted font-mono flex flex-col sm:flex-row justify-between items-center border-t border-card-border pt-4 gap-2">
+        <div>SYSTEM STATUS: <span class="text-green-neon">ONLINE // LOCALSTORAGE ACTIVE</span></div>
+        <div>طراحی شده بر اساس نسخه پایتون Cyber Sawab v2.1</div>
+    </footer>
+
+    <!-- MODAL: QURAN SURAH READER -->
+    <div id="quran-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 modal-blur">
+        <div class="bg-card-bg border-2 border-cyan-neon w-full max-w-md rounded-2xl p-6 shadow-neon-cyan relative">
+            <h3 id="modal-surah-title" class="text-xl font-bold text-cyan-neon mb-1 text-center">سوره</h3>
+            <p id="modal-surah-verses" class="text-xs text-text-muted text-center mb-6">تعداد آیات:</p>
+
+            <div class="space-y-3">
+                <button onclick="confirmFullSurahRead()" class="w-full py-3 bg-cyan-neon text-bg-dark font-bold text-sm rounded-xl hover:opacity-90 transition-all">
+                    قرائت کامل سوره (ثبت تمام آیات)
+                </button>
+
+                <div class="pt-3 border-t border-card-border">
+                    <label class="text-xs text-text-muted block mb-2">قرائت بخشی از سوره:</label>
+                    <div class="flex gap-2">
+                        <input type="number" id="partial-verse-input" placeholder="تعداد آیه خوانده شده..." class="flex-1 bg-bg-dark border border-card-border text-text-main px-3 py-2 rounded-xl text-sm outline-none focus:border-cyan-neon">
+                        <button onclick="confirmPartialSurahRead()" class="px-4 py-2 bg-card-bg border border-cyan-neon text-cyan-neon font-bold text-sm rounded-xl hover:bg-cyan-neon hover:text-bg-dark transition-all">
+                            ثبت
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <button onclick="closeQuranModal()" class="mt-6 w-full py-2 bg-bg-dark text-text-muted hover:text-text-main text-xs rounded-xl border border-card-border">
+                انصراف و بستن
+            </button>
+        </div>
+    </div>
+
+    <!-- MODAL: FINANCIAL CHARITY -->
+    <div id="mali-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 modal-blur">
+        <div class="bg-card-bg border-2 border-gold-neon w-full max-w-md rounded-2xl p-6 shadow-neon-gold relative">
+            <h3 class="text-xl font-bold text-gold-neon mb-4 text-center">💳 کار خیر مالی</h3>
+            <p class="text-xs text-text-muted mb-4 text-center">مبلغ پرداختی را به تومان وارد کنید (هر ۱۰,۰۰۰ تومان = ۱ ثواب)</p>
+
+            <input type="number" id="mali-amount-input" placeholder="مبلغ به تومان..." class="w-full bg-bg-dark border border-card-border text-text-main px-4 py-3 rounded-xl text-sm outline-none focus:border-gold-neon mb-4">
+
+            <div class="flex gap-2">
+                <button onclick="submitMaliCharity()" class="flex-1 py-3 bg-gold-neon text-bg-dark font-bold text-sm rounded-xl hover:opacity-90 transition-all">
+                    محاسبه و ثبت
+                </button>
+                <button onclick="closeMaliModal()" class="px-4 py-3 bg-bg-dark border border-card-border text-text-muted text-sm rounded-xl">
+                    انصراف
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: NON-FINANCIAL CHARITY -->
+    <div id="ghair-mali-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 modal-blur">
+        <div class="bg-card-bg border-2 border-cyan-neon w-full max-w-md rounded-2xl p-6 shadow-neon-cyan relative">
+            <h3 class="text-xl font-bold text-cyan-neon mb-4 text-center">🌟 کار خیر غیرمالی</h3>
+            <p class="text-xs text-text-muted mb-4 text-center">عنوان یا شرح خدمت انجام شده را وارد نمایید</p>
+
+            <input type="text" id="ghair-mali-desc-input" placeholder="مثلا: کمک به همسایه، گره‌گشایی..." class="w-full bg-bg-dark border border-card-border text-text-main px-4 py-3 rounded-xl text-sm outline-none focus:border-cyan-neon mb-4">
+
+            <div class="flex gap-2">
+                <button onclick="submitGhairMaliCharity()" class="flex-1 py-3 bg-cyan-neon text-bg-dark font-bold text-sm rounded-xl hover:opacity-90 transition-all">
+                    ثبت در سیستم
+                </button>
+                <button onclick="closeGhairMaliModal()" class="px-4 py-3 bg-bg-dark border border-card-border text-text-muted text-sm rounded-xl">
+                    انصراف
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- SCRIPT LOGIC ENGINE -->
+    <script>
+        // Surahs Database matching python array Exactly
+        const SURAHS = [
+            ["فاتحه", 7], ["بقره", 286], ["آل عمران", 200], ["نساء", 176], ["مائده", 120], ["انعام", 165], ["اعراف", 206], ["انفال", 75], ["توبه", 129], ["یونس", 109],
+            ["هود", 123], ["یوسف", 111], ["رعد", 43], ["ابراهیم", 52], ["حجر", 99], ["نحل", 128], ["اسراء", 111], ["کهف", 110], ["مریم", 98], ["طه", 135],
+            ["انبیاء", 112], ["حج", 78], ["مؤمنون", 118], ["نور", 64], ["فرقان", 77], ["شعراء", 227], ["نمل", 93], ["قصص", 88], ["عنکبوت", 69], ["روم", 60],
+            ["لقمان", 34], ["سجده", 30], ["احزاب", 73], ["سبأ", 54], ["فاطر", 45], ["یس", 83], ["صافات", 182], ["ص", 88], ["زمر", 75], ["غافر", 85],
+            ["فصلت", 54], ["شورى", 53], ["زخرف", 89], ["دخان", 59], ["جاثیه", 37], ["احقاف", 35], ["محمد", 38], ["فتح", 29], ["حجرات", 18], ["ق", 45],
+            ["ذاریات", 60], ["طور", 49], ["نجم", 62], ["قمر", 55], ["رحمن", 78], ["واقعه", 96], ["حديد", 29], ["مجادله", 22], ["حشر", 24], ["ممتحنه", 13],
+            ["صف", 14], ["جمعه", 11], ["منافقون", 11], ["تغابن", 18], ["طلاق", 12], ["تحریم", 12], ["ملک", 30], ["قلم", 52], ["حاقه", 52], ["معارج", 44],
+            ["نوح", 28], ["جن", 28], ["مزمل", 20], ["مدثر", 56], ["قیامه", 40], ["انسان", 31], ["مرسلات", 50], ["نبأ", 40], ["نازعات", 46], ["عبس", 42],
+            ["تکاویر", 29], ["انفطار", 19], ["مطففین", 36], ["انشقاق", 25], ["بروج", 22], ["طارق", 17], ["اعلى", 19], ["غاشیه", 26], ["فجر", 30], ["بلد", 20],
+            ["شمس", 15], ["لیل", 21], ["ضحى", 11], ["شرح", 8], ["تین", 8], ["علق", 19], ["قدر", 5], ["بینه", 8], ["زلزله", 8], ["عاديات", 11],
+            ["قارعه", 11], ["تکاثر", 8], ["عصر", 3], ["همزه", 9], ["فيل", 5], ["قریش", 4], ["ماعون", 7], ["کوثر", 3], ["کافرون", 6], ["نصر", 3],
+            ["مسد", 5], ["اخلاص", 4], ["فلق", 5], ["ناس", 6]
+        ];
+
+        // System State
+        let totalSawab = 0;
+        let logs = [];
+        let isAudioEnabled = true;
+        let selectedSurah = null;
+        let dhikrCounter = 0;
+
+        // Web Audio Synthesizer for Cyber Click Effects
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        function playClickSound() {
+            if (!isAudioEnabled) return;
+            try {
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(800, audioCtx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(300, audioCtx.currentTime + 0.05);
+                gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.05);
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.start();
+                osc.stop(audioCtx.currentTime + 0.05);
+            } catch (e) { console.log(e); }
+        }
+
+        // Initialize Application
+        window.addEventListener('DOMContentLoaded', () => {
+            loadFromStorage();
+            renderSurahGrid(SURAHS);
+            updateUI();
+        });
+
+        function loadFromStorage() {
+            const savedScore = localStorage.getItem('cyber_sawab_total');
+            if (savedScore !== null) {
+                totalSawab = parseInt(savedScore, 10) || 0;
+            }
+            const savedLogs = localStorage.getItem('cyber_sawab_logs');
+            if (savedLogs) {
+                try { logs = JSON.parse(savedLogs); } catch(e) { logs = []; }
+            }
+        }
+
+        function saveToStorage() {
+            localStorage.setItem('cyber_sawab_total', totalSawab);
+            localStorage.setItem('cyber_sawab_logs', JSON.stringify(logs));
+        }
+
+        function addSawab(amount, description) {
+            if (amount <= 0) return;
+            totalSawab += amount;
+            
+            const now = new Date();
+            const timestamp = now.toLocaleDateString('fa-IR') + ' - ' + now.toLocaleTimeString('fa-IR', {hour: '2-digit', minute:'2-digit', second:'2-digit'});
+            
+            logs.unshift({
+                id: Date.now(),
+                timestamp: timestamp,
+                amount: amount,
+                description: description
+            });
+
+            saveToStorage();
+            updateUI();
+            playClickSound();
+        }
+
+        function updateUI() {
+            document.getElementById('score-counter').innerText = totalSawab.toLocaleString('fa-IR');
+            renderLogs();
+        }
+
+        // NAVIGATION ENGINE
+        function showMainMenu() {
+            playClickSound();
+            document.getElementById('nav-banner').classList.add('hidden');
+            
+            // Hide all sub-views
+            ['view-quran', 'view-dhikr', 'view-namaz', 'view-khair', 'view-history'].forEach(id => {
+                document.getElementById(id).classList.add('hidden');
+            });
+
+            // Show Main Menu
+            document.getElementById('view-main-menu').classList.remove('hidden');
+        }
+
+        function openSubView(viewId, title) {
+            playClickSound();
+            document.getElementById('view-main-menu').classList.add('hidden');
+            
+            ['view-quran', 'view-dhikr', 'view-namaz', 'view-khair', 'view-history'].forEach(id => {
+                document.getElementById(id).classList.add('hidden');
+            });
+
+            document.getElementById(viewId).classList.remove('hidden');
+            
+            const navBanner = document.getElementById('nav-banner');
+            navBanner.classList.remove('hidden');
+            document.getElementById('view-title').innerHTML = title;
+        }
+
+        // CATEGORY HANDLERS
+        function openQuran() {
+            openSubView('view-quran', '📖 قرائت قرآن کریم');
+        }
+        function openDhikr() {
+            openSubView('view-dhikr', '📿 ذکر و تسبیحات هوشمند');
+        }
+        function openNamaz() {
+            openSubView('view-namaz', '🕌 اقامه نماز');
+        }
+        function openKhair() {
+            openSubView('view-khair', '🤝 کار خیر و انفاق');
+        }
+        function openHistory() {
+            openSubView('view-history', '📜 تاریخچه و گزارش ثواب‌ها');
+        }
+
+        // QURAN SECTION LOGIC
+        function renderSurahGrid(surahList) {
+            const container = document.getElementById('surah-grid');
+            container.innerHTML = '';
+
+            surahList.forEach((s, index) => {
+                const name = s[0];
+                const verses = s[1];
+                const btn = document.createElement('button');
+                btn.className = "bg-card-bg border border-card-border hover:border-cyan-neon hover:text-cyan-neon p-3 rounded-xl text-center text-xs transition-all flex flex-col justify-center items-center gap-1 group";
+                btn.onclick = () => openQuranModal(name, verses);
+                btn.innerHTML = `
+                    <span class="font-bold text-sm text-text-main group-hover:text-cyan-neon">${index + 1}. سوره ${name}</span>
+                    <span class="text-text-muted text-[11px]">(${verses} آیه)</span>
+                `;
+                container.appendChild(btn);
+            });
+        }
+
+        function filterSurahs() {
+            const query = document.getElementById('quran-search').value.trim().toLowerCase();
+            const filtered = SURAHS.filter(s => s[0].toLowerCase().includes(query));
+            renderSurahGrid(filtered);
+        }
+
+        function recordQuickAyatAlKursi() {
+            addSawab(3, "قرائت آیت الکرسی (۳ آیه)");
+        }
+
+        function openQuranModal(surahName, maxVerses) {
+            selectedSurah = { name: surahName, verses: maxVerses };
+            document.getElementById('modal-surah-title').innerText = `سوره ${surahName}`;
+            document.getElementById('modal-surah-verses').innerText = `تعداد کل آیات: ${maxVerses}`;
+            document.getElementById('partial-verse-input').value = '';
+            document.getElementById('quran-modal').classList.remove('hidden');
+        }
+
+        function closeQuranModal() {
+            document.getElementById('quran-modal').classList.add('hidden');
+        }
+
+        function confirmFullSurahRead() {
+            if (!selectedSurah) return;
+            addSawab(selectedSurah.verses, `قرائت کامل سوره ${selectedSurah.name}`);
+            closeQuranModal();
+        }
+
+        function confirmPartialSurahRead() {
+            if (!selectedSurah) return;
+            const inputVal = parseInt(document.getElementById('partial-verse-input').value, 10);
+            if (inputVal && inputVal > 0 && inputVal <= selectedSurah.verses) {
+                addSawab(inputVal, `قرائت ${inputVal} آیه از سوره ${selectedSurah.name}`);
+                closeQuranModal();
+            }
+        }
+
+        // DHIKR SECTION LOGIC
+        function incrementDhikrCounter() {
+            dhikrCounter++;
+            document.getElementById('dhikr-counter-val').innerText = dhikrCounter;
+            playClickSound();
+        }
+
+        function resetDhikrCounter() {
+            dhikrCounter = 0;
+            document.getElementById('dhikr-counter-val').innerText = '0';
+            playClickSound();
+        }
+
+        function setPresetDhikr(title) {
+            document.getElementById('current-dhikr-label').innerText = title;
+            playClickSound();
+        }
+
+        function submitCurrentCounter() {
+            if (dhikrCounter <= 0) return;
+            const title = document.getElementById('current-dhikr-label').innerText;
+            addSawab(dhikrCounter, `ذکر: ${title} (${dhikrCounter} بار)`);
+            resetDhikrCounter();
+        }
+
+        function submitManualDhikr() {
+            const title = document.getElementById('manual-dhikr-title').value.trim();
+            const count = parseInt(document.getElementById('manual-dhikr-count').value, 10);
+
+            if (title && count > 0) {
+                addSawab(count, `ذکر: ${title} (${count} بار)`);
+                document.getElementById('manual-dhikr-title').value = '';
+                document.getElementById('manual-dhikr-count').value = '';
+            }
+        }
+
+        // NAMAZ LOGIC
+        function recordNamaz(namazName, sawab) {
+            addSawab(sawab, `اقامه ${namazName}`);
+        }
+
+        // CHARITY LOGIC
+        function openMaliModal() {
+            document.getElementById('mali-amount-input').value = '';
+            document.getElementById('mali-modal').classList.remove('hidden');
+        }
+        function closeMaliModal() {
+            document.getElementById('mali-modal').classList.add('hidden');
+        }
+        function submitMaliCharity() {
+            const amount = parseInt(document.getElementById('mali-amount-input').value, 10);
+            if (amount > 0) {
+                const sawab = Math.max(1, Math.floor(amount / 10000));
+                addSawab(sawab, `کمک مالی به مبلغ ${amount.toLocaleString('fa-IR')} تومان`);
+                closeMaliModal();
+            }
+        }
+
+        function openGhairMaliModal() {
+            document.getElementById('ghair-mali-desc-input').value = '';
+            document.getElementById('ghair-mali-modal').classList.remove('hidden');
+        }
+        function closeGhairMaliModal() {
+            document.getElementById('ghair-mali-modal').classList.add('hidden');
+        }
+        function submitGhairMaliCharity() {
+            const desc = document.getElementById('ghair-mali-desc-input').value.trim();
+            if (desc) {
+                addSawab(1, `کار خیر: ${desc}`);
+                closeGhairMaliModal();
+            }
+        }
+
+        // HISTORY AND LOGS
+        function renderLogs() {
+            const container = document.getElementById('log-list');
+            if (logs.length === 0) {
+                container.innerHTML = `<p class="text-center text-xs text-text-muted py-8">هنوز هیچ ثوابی ثبت نشده است.</p>`;
+                return;
+            }
+
+            container.innerHTML = logs.map(item => `
+                <div class="flex justify-between items-center bg-bg-dark p-3 rounded-xl border border-card-border text-xs">
+                    <div class="flex items-center gap-2">
+                        <span class="text-gold-neon font-bold font-mono">+${item.amount}</span>
+                        <span class="text-text-main">${item.description}</span>
+                    </div>
+                    <span class="text-text-muted font-mono text-[11px]">${item.timestamp}</span>
+                </div>
+            `).join('');
+        }
+
+        function clearLogs() {
+            if (confirm('آیا از پاک‌سازی کامل تاریخچه مطمئن هستید؟')) {
+                logs = [];
+                saveToStorage();
+                updateUI();
+            }
+        }
+
+        function exportLogs() {
+            if (logs.length === 0) return;
+            const textContent = logs.map(l => `[${l.timestamp}] +${l.amount} ثواب | ${l.description}`).join('\n');
+            const blob = new Blob([textContent], { type: 'text/plain;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'sawab_log.txt';
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        // GLOBAL CONTROLS
+        function toggleAudio() {
+            isAudioEnabled = !isAudioEnabled;
+            const icon = document.getElementById('audio-icon');
+            icon.className = isAudioEnabled ? 'fa-solid fa-volume-high text-sm' : 'fa-solid fa-volume-xmark text-sm';
+        }
+
+        function confirmReset() {
+            if (confirm('آیا از بازنشانی کل امتیازات ثواب مطمئن هستید؟')) {
+                totalSawab = 0;
+                logs = [];
+                saveToStorage();
+                updateUI();
+            }
+        }
+    </script>
+</body>
+</html>
